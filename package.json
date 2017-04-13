@@ -1,0 +1,23 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "Application similar to Amazon' storefront",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coreybrooks/bamazon.git"
+  },
+  "author": "corey brooks",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/coreybrooks/bamazon/issues"
+  },
+  "homepage": "https://github.com/coreybrooks/bamazon#readme",
+  "dependencies": {
+    "inquirer": "^3.0.6",
+    "mysql": "^2.13.0"
+  }
+}
