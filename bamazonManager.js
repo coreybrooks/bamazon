@@ -1,6 +1,5 @@
 var mysql = require('mysql');
 var inquirer = require('inquirer');
-var displayTable = require("./displayTable");
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -13,9 +12,9 @@ var connection = mysql.createConnection({
 //connect to mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
-    console.log("connected on port 3306");
 });
 
+//function to prompt manager for which action they want
 var managerPrompt = function() {
     inquirer.prompt([{
         name: "action",
@@ -41,9 +40,26 @@ var managerPrompt = function() {
     });
 }
 
-//function to check for and display inventory with fewer than 10 units
+//function to display the products table from the database
+var displayTable = function () {
+    connection.query('SELECT * FROM products', function(err, res){
+        if (err) throw err;
+
+        console.log("\n--------------------------\n");
+        console.log("id | product  | price");
+        console.log("---------------------");
+        for(i=0; i<res.length; i++) {
+            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].price);
+        }
+        console.log("\n--------------------------\n");
+        managerPrompt();
+    });    
+}
+
+
+//function to check for and display inventory with fewer than 5 units
 var viewInventory = function() {
-    var query =  "SELECT item_id, product_name, stock_quantity FROM products WHERE stock_quantity < 30";
+    var query =  "SELECT item_id, product_name, stock_quantity FROM products WHERE stock_quantity < 5";
     connection.query(query, function(err, data){
         if (err) throw err
         console.log("\n--LOW INVENTORY--");
@@ -63,7 +79,7 @@ var addInventory = function() {
     inquirer.prompt([{
         "name": "id",
         "type": "input",
-        "message": "what is the item_id of the product you wish to add"
+        "message": "what is the item_id of the product you wish to add?"
     }, {
         "name": "quantity",
         "type": "input",
@@ -83,11 +99,44 @@ var addInventory = function() {
             connection.query(query2, [{stock_quantity : dataQuantity},
             {item_id : answer.id}], function(err, data){
                 if (err) throw err
-                console.log("units added!");
+                console.log("\nunits added!");
                 console.log("---------------\n");
                 managerPrompt();
             });
         }
+    });
+}
+
+//function to add new products
+var addProduct = function() {
+    inquirer.prompt([{
+        "name": "productName",
+        "type": "input",
+        "message": "what is the name of the new product?"
+    },{
+        "name": "departmentName",
+        "type": "input",
+        "message": "in which department will this product be placed?"
+    },{
+        "name": "unitPrice",
+        "type": "input",
+        "message": "what is the unit price for the new product?"
+    },{
+        "name": "initialQuantity",
+        "type": "input",
+        "message": "how many units are being added?"
+    }]).then(function(answers){
+        connection.query("INSERT INTO products SET ?", {
+         product_name: answers.productName,
+         department_name: answers.departmentName,
+         price: answers.unitPrice,
+         stock_quantity: answers.initialQuantity
+        }, function(err, data){
+             if (err) throw err
+             console.log('\nproduct added!');
+             console.log("---------------------\n");
+             managerPrompt();
+         });
     });
 }
 
