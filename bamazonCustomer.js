@@ -41,11 +41,13 @@ var firstPrompt = function () {
         type: 'input',
         message:'How many units would you like to purchase?'
     }]).then(function(answer) {
-        var query = "SELECT stock_quantity, price FROM products WHERE ?"
+        //first query to products
+        var query = "SELECT department_name, stock_quantity, product_sales, price FROM products WHERE ?"
         connection.query(query, {item_id: answer.id}, function (err, res) {
 
             //checks to see if there enough units in stock
             if(res[0].stock_quantity >= answer.quantity) {
+                var dept = res[0].department_name;
                 var adjustedQuantity = res[0].stock_quantity - answer.quantity;
                 var purchasePrice = (answer.quantity * res[0].price).toFixed(2);
 
@@ -54,11 +56,36 @@ var firstPrompt = function () {
                 connection.query(query2, [{stock_quantity : adjustedQuantity}, {item_id: answer.id}], 
                 function(err, res) {
                     if (err) throw err
-                    console.log('Thanks for your purchase, your total price is: $' + purchasePrice);
-                    console.log('\n----------------\n');
-                    firstPrompt();
+                    console.log('Thanks for your purchase!');
+                    console.log('----------------');
+                });
+
+                //update the total price of the purchase to product_sales
+                var adjustedSales = res[0].product_sales + parseFloat(purchasePrice);
+                var query3 = "UPDATE products SET ? WHERE ?";
+                connection.query(query3, [{product_sales: adjustedSales},{item_id: answer.id}],
+                function(err, data) {
+                    if (err) throw err
+                    console.log('your total price is: $' + purchasePrice);
+                    console.log("-----------------\n");
+                });
+
+                //check the current total sales of the department from the department table and update value
+                var query4 = "SELECT total_sales FROM departments WHERE ?"
+                connection.query(query4,{department_name:dept},function(err, data) {
+                    if (err) throw err
+                    var currentSales = data[0].total_sales;
+                    var adjustedTotalSales = currentSales + parseFloat(purchasePrice);
+
+                    //also update the total price of the purchase to total sales in department table
+                    var query5 = "UPDATE departments SET ? WHERE ?"
+                    connection.query(query5, [{total_sales:adjustedTotalSales},{department_name:dept}], function(err,data) {
+                        if (err) throw err
+                        firstPrompt();
+                    });                    
                 });
             }
+
             //alert the user if there are not enough units in stock
             else {
                 console.log("Sorry, there are only " + res[0].stock_quantity + " units remaining");

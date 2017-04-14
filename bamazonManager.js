@@ -99,7 +99,7 @@ var addInventory = function() {
             connection.query(query2, [{stock_quantity : dataQuantity},
             {item_id : answer.id}], function(err, data){
                 if (err) throw err
-                console.log("\nunits added!");
+                console.log("\nnew units added!");
                 console.log("---------------\n");
                 managerPrompt();
             });
