@@ -4,6 +4,8 @@ Node and mySQL application similar to Amazon's storefront.  This API consists of
 * manager interface
 * supervisor interface
 
+Here is a link to watch a demo of the application [on YouTube](https://www.youtube.com/watch?v=LvJuge7NW5I&feature=youtu.be)
+
 ### Customer Interface
 The customer application is run by entering node bamazonCustomer.js in the node console.  The customer is then shown a table of available products and prompted as to which item they would like to purchase and the quantity of units.  The system then checks the products table in mySQL to make sure there is enough product available.  If there are enough units remaining, the system calculates the sales total and thanks the customer for their purchase.  It then adjusts the amount stock to reflect the purchase.  Next, the system updates the total sales for the item in the products table, and it updates the total profit for the corresponding department in the department's table.
 
